@@ -8,3 +8,5 @@ const uint32_t ALLLEDS = LED0|LED1|LED2|LED3;
 void setup();
 
 void SetLEDS(uint32_t bitmap);
+
+uint32_t GenerateBitMask(int num);
