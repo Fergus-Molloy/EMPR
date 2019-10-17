@@ -9,4 +9,6 @@ void setup();
 
 void SetLEDS(uint32_t bitmap);
 
+void LEDOff(uint32_t bitmask);
+
 uint32_t GenerateBitMask(int num);

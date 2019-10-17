@@ -1,30 +1,40 @@
 #include <stdio.h>
 #include <stdint.h>
-//#include "lpc17xx_gpio.h"
+#include "lpc17xx_gpio.h"
 #include "LEDS.h"
-//#include "lpc17xx_systick.h"
-//#include "/serial/serial.h"
+#include "lpc17xx_systick.h"
+#include "serial.h"
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
+
 
 int main(void){
-	//setup()
-	for(int x=0; x<16; x++){
-		uint32_t bitmask = GenerateBitMask(x);
-		printf("bitmask: %x\n", bitmask);
-	}
+	setup();
+	write_usb_serial_blocking("Starting count\n\r", 17);
 	return 0;
 }
-/*
+
 void setup(){
+	serial_init();
 	SYSTICK_InternalInit(100);
 	SYSTICK_IntCmd(ENABLE);
 	SYSTICK_Cmd(ENABLE);
 }
 
-void SetLED(uint32_t bitmap){
-	GPIO_SetDir(1, bitmap, 1);
-	GPIO_SetValue(1, bitmap);
+void SetLED(uint32_t bitmask){
+	GPIO_SetDir(1, bitmask, 1);
+	GPIO_SetValue(1, bitmask);
 }
-*/
+
+void LEDOff(uint32_t bitmask){
+	GPIO_SetDir(1, bitmask, 1);
+	GPIO_ClearValue(1, bitmask);
+}
+
 uint32_t GenerateBitMask(int num){
 	/*exception here
 	if(num<0 || num>15){
@@ -48,21 +58,52 @@ uint32_t GenerateBitMask(int num){
 	}
 	return bitmask;
 }
-/*
+
+void finish(){
+	write_usb_serial_blocking("Finished", 21);
+	while(1);
+}
+
 //Interrupts--------------------
 void SysTick_Handler(){
 	static int count=0;
 	static int flag=0;
+	static int x=0;
+	count++;
+
+	if(x == 16){
+		finish();
+	}
+
 	if(count==10){
+		uint32_t bitmask = GenerateBitMask(x);
+		x++;
+		char buffer[20] = "0";
+		sprintf(buffer, "%x\n\r", bitmask);
+		write_usb_serial_blocking(buffer, 21);
+		//char dec[20] = "0";
+		//char hex[20] = "0";
+		//char bin[20] = "0";
+
+		//sprintf(dec, "dec: %d\n\r", x);
+		//sprintf(hex, "hex: %x\n\r", x);
+		//sprintf(bin, "bin: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(x));
+
+		//write_usb_serial_blocking(dec, 21);
+		//write_usb_serial_blocking(hex, 21);
+		//write_usb_serial_blocking(bin, 21);
+
 		count = 0;
 		if(flag){
 			flag = 0;
-			SetLED(ALLLEDS);
+			LEDOff(ALLLEDS);
+			LEDOff(LED0);
+			SetLED(bitmask);
 		}
 		else{
 			flag = 1;
-			SetLED(0); // 0 turns all outputs off
+			LEDOff(ALLLEDS);
+			 // 0 turns all outputs off
 		}
 	}
 }
-*/
