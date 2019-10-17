@@ -40,70 +40,62 @@ uint32_t GenerateBitMask(int num){
 	if(num<0 || num>15){
 	}*/
 	uint32_t bitmask = 0;
-	if((num-8)>=0){
+	if (num&0b1000){
 		bitmask |= LED3;
-		num -= 8;
 	}
-	if((num-4)>=0){
+	if(num&0b100){
 		bitmask |= LED2;
-		num -=4;
 	}
-	if((num-2)>=0){
+	if(num&0b10){
 		bitmask |= LED1;
-		num -= 2;
 	}
-	if((num-1)>=0){
+	if(num&0b1){
 		bitmask |= LED0;
-		num -= 1;
 	}
 	return bitmask;
 }
 
+void exception(int num){
+	uint32_t bitmask = GenerateBitMask(num);
+	LEDOff(ALLLEDS);
+	SetLED(bitmask);
+	while(1); 
+}
+
 void finish(){
-	write_usb_serial_blocking("Finished", 21);
+	write_usb_serial_blocking("Finished\n\r", 11);
+	LEDOff(ALLLEDS);
 	while(1);
 }
 
 //Interrupts--------------------
 void SysTick_Handler(){
 	static int count=0;
-	static int flag=0;
 	static int x=0;
 	count++;
 
-	if(x == 16){
+	if(x == 15){
 		finish();
 	}
 
 	if(count==10){
 		uint32_t bitmask = GenerateBitMask(x);
 		x++;
-		char buffer[20] = "0";
-		sprintf(buffer, "%x\n\r", bitmask);
-		write_usb_serial_blocking(buffer, 21);
-		//char dec[20] = "0";
-		//char hex[20] = "0";
-		//char bin[20] = "0";
 
-		//sprintf(dec, "dec: %d\n\r", x);
-		//sprintf(hex, "hex: %x\n\r", x);
-		//sprintf(bin, "bin: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(x));
+		char dec[20] = "0";
+		char hex[20] = "0";
+		char bin[20] = "0";
 
-		//write_usb_serial_blocking(dec, 21);
-		//write_usb_serial_blocking(hex, 21);
-		//write_usb_serial_blocking(bin, 21);
+		sprintf(dec, "dec: %d\n\r", x);
+		sprintf(hex, "hex: %x\n\r", x);
+		sprintf(bin, "bin: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(x));
+
+		write_usb_serial_blocking(dec, 11);
+		write_usb_serial_blocking(hex, 11);
+		write_usb_serial_blocking(bin, 13);
 
 		count = 0;
-		if(flag){
-			flag = 0;
-			LEDOff(ALLLEDS);
-			LEDOff(LED0);
-			SetLED(bitmask);
-		}
-		else{
-			flag = 1;
-			LEDOff(ALLLEDS);
-			 // 0 turns all outputs off
-		}
+		LEDOff(ALLLEDS);
+		SetLED(bitmask);
 	}
 }

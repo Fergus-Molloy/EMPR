@@ -1,7 +1,7 @@
-#define LED0 0x00040000
-#define LED1 0x00100000
-#define LED2 0x00200000
-#define LED3 0x00800000
+#define LED0 1<<18
+#define LED1 1<<20
+#define LED2 1<<21
+#define LED3 1<<23
 
 const uint32_t ALLLEDS = LED0|LED1|LED2|LED3;
 
