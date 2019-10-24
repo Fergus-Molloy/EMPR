@@ -11,14 +11,14 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-
+/*
 int main(void){
 	setup();
 	write_usb_serial_blocking("Starting count\n\r", 17);
 	return 0;
 }
-
-void setup(){
+*/
+void setup_LEDS(){
 	serial_init();
 	SYSTICK_InternalInit(100);
 	SYSTICK_IntCmd(ENABLE);
@@ -57,14 +57,14 @@ uint32_t GenerateBitMask(int num){
 
 void exception(int num){
 	uint32_t bitmask = GenerateBitMask(num);
-	LEDOff(ALLLEDS);
+	LEDOff(LED0|LED1|LED2|LED3);
 	SetLED(bitmask);
-	while(1); 
+	while(1);
 }
 
 void finish(){
 	write_usb_serial_blocking("Finished\n\r", 11);
-	LEDOff(ALLLEDS);
+	LEDOff(LED0|LED1|LED2|LED3);
 	while(1);
 }
 
@@ -95,7 +95,7 @@ void SysTick_Handler(){
 		write_usb_serial_blocking(bin, 13);
 
 		count = 0;
-		LEDOff(ALLLEDS);
+		LEDOff(LED0|LED1|LED2|LED3);
 		SetLED(bitmask);
 	}
 }

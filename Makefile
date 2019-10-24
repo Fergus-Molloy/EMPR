@@ -46,10 +46,10 @@ LDFLAGS=$(CMSISFL) -static -mcpu=cortex-m3 -mthumb -mthumb-interwork \
 LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 
 # Name of the binary being built
-EXECNAME	= bin/LEDS
+EXECNAME	= bin/I2C
 
 # Source files provided by the user to build the project
-OBJ		= LEDS.o serial.o
+OBJ		= LEDS.o serial.o I2C.o
 
 # Commands handled by this makefile
 all: 	serial
