@@ -10,51 +10,43 @@ int size(char string[]){
   return (int) (sizeof(string) / sizeof(char));
 }
 
+void LCD_setup(){
+  char buf[] = {0x00,0x34,0x0c,0x06,0x35,0x04,0x10,0x42,0x9f,0x34,0x02};
+  transmit(buf, SERIAL_ADDR);
+}
+
 int main(void){
   serial_init();
-  setup_I2C();
-  int count = 0, i = 0, j = 0, result = 0;
-  int addrs[5];
-  for(i=0; i<=127; i++){
-    result = transmit(1, i);
-    if(result){
-      count++;
-      addrs[j] = i;
-      j++;
-    }
-  }
-
-  char string[34] = "0";
-  sprintf(string, "%d devices connected to I2C bus\n\r", count);
-  write_usb_serial_blocking(string, 34);
-  for(i=0; i<5; i++){
-    char string[12] = "0";
-    sprintf(string, "Addr %d: %x\n\r", i, addrs[i]);
-    write_usb_serial_blocking(string, 12);    
-
-  }
-
+  setup_I2C(3,0,0,1);
+  int result = 0;
+  LCD_setup();
+  char buf[2] = {0x00, 0x80};
+  transmit(buf, SERIAL_ADDR);
+  buf[0] = 0x40;
+  buf[1] = 0x64;
+  result = transmit(buf, SERIAL_ADDR);
+  write_usb_serial_blocking("Success\n\r", 9);
   return 0;
 }
 
 
-void setup_I2C(){
+void setup_I2C(int func, int port, int pin0, int pin1){
   PINSEL_CFG_Type PinCfg;
 
   PinCfg.OpenDrain = 0;
   PinCfg.Pinmode = 0;
-  PinCfg.Funcnum = 3;
-  PinCfg.Pinnum = 0;
-  PinCfg.Portnum = 0;
+  PinCfg.Funcnum = func;
+  PinCfg.Pinnum = pin0;
+  PinCfg.Portnum = port;
   PINSEL_ConfigPin(&PinCfg);
-  PinCfg.Pinnum = 1;
+  PinCfg.Pinnum = pin1;
   PINSEL_ConfigPin(&PinCfg);
 
   I2C_Init(LPC_I2C1, 100000);
   I2C_Cmd(LPC_I2C1, ENABLE);
 }
 
-int transmit(int data, uint8_t addr){
+int transmit(char data[], uint8_t addr){
   I2C_M_SETUP_Type transferMCfg;
   transferMCfg.sl_addr7bit = addr;
   transferMCfg.tx_data = data;
