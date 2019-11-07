@@ -1,10 +1,11 @@
 #include "Convert.h"
-
+#include "serial.h"
+#include <stdio.h>
 char convert_char(char c){
     /*
-    Converts individual characters to correct LCD value 
+    Converts individual characters to correct LCD value
     */
-    if(c==32){
+    if(c==32||c==160){
         return SPACE;
     }
     else if(c>=48 && c<48+10){
@@ -17,7 +18,10 @@ char convert_char(char c){
         return c;
     }
     else{
-        printf("ValueError: character not in alphabet");
+        char text[43]={0};
+        sprintf(text, "ValueError: character %d not in alphabet\n\r", c);
+        write_usb_serial_blocking(text, 43);
+        return -1;
     }
 }
 
@@ -30,7 +34,7 @@ char* convert_str(char string[]){
     int x;
     //char buff[16] = {0};
     for(x=0; x<17; x++){
-        if(string[x]==NULL)
+        if(string[x]==0)
             break;
         string[x] = convert_char(string[x]);
     }

@@ -49,7 +49,7 @@ LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 EXECNAME	= bin/I2C
 
 # Source files provided by the user to build the project
-OBJ		= LEDS.o serial.o I2C.o
+OBJ		= LEDS.o serial.o I2C.o Convert.o
 
 # Commands handled by this makefile
 all: 	serial

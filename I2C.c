@@ -3,6 +3,7 @@
 #include "lpc17xx_pinsel.h"
 #include "serial.h"
 #include "I2C.h"
+#include "Convert.h"
 
 char message[] = "i got here\n\r";
 
@@ -17,7 +18,7 @@ void LCD_setup(){
 
 void LCD_write(char address, char letter){
   char addr[2] = {0x00, address};
-  char buf[2] = {0x40, letter};
+  char buf[2] = {0x40, convert_char(letter)};
   transmit(addr, SERIAL_ADDR, 2);
   transmit(buf, SERIAL_ADDR, 2);
 }
@@ -25,31 +26,24 @@ void LCD_write(char address, char letter){
 void LCD_clear(){
   char x;
   for(x=0x80; x<0xB8; x++){ //B8 is the last address we can see
-    LCD_write(x, 0xA0);
+    LCD_write(x, SPACE);
   }
 }
 
 int main(void){
   serial_init();
+
+  //char test[20]={0};
+  //char space = " ";
+  //sprintf(test, "char value is %d\n\r", SPACE);
+  //write_usb_serial_blocking(test, 20);
   setup_I2C(3,0,0,1);
   LCD_setup();
   LCD_clear();
 
-  char buf[16] = {0};
-  buf[0] = 200;
-  buf[1] = 101;
-  buf[2] = 108;
-  buf[3] = 108;
-  buf[4] = 111;
-  buf[5] = SPACE;
-  buf[6] = 87;
-  buf[7] = 111;
-  buf[8] = 114;
-  buf[9] = 108;
-  buf[10] = 100;
+  char buf[16] = "Hello World";
 
-  char addr=0;
-  addr = 0x80;
+  char addr = BASE_ADDR;
   int x;
   for(x=0; x<11; x++){
     LCD_write(addr, buf[x]);
