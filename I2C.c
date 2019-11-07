@@ -5,10 +5,53 @@
 #include "I2C.h"
 #include "Convert.h"
 
-char message[] = "i got here\n\r";
+int main(void){
+  serial_init();
+  setup_I2C(3,0,0,1);
+  LCD_setup();
+  LCD_clear();
 
-int size(char string[]){
-  return (int) (sizeof(string) / sizeof(char));
+  //stage_one();
+  //wait();
+  //stage_two();
+  stage_three();
+  write_usb_serial_blocking("Success\n\r", 9);
+
+  return 0;
+}
+
+void stage_one(){
+  int count=0;
+  char addr[9]={0};
+  char letter[1] = {1};
+  int x;
+  for(x=0; x<256; x++){
+    int result = transmit(letter, x, 1);
+    if(result)
+    {
+      addr[count]=x;
+      count++;
+    }
+  }
+  char text[33] = {0};
+  sprintf(text, "%d deviced connected to i2c bus\n\r", count);
+  write_usb_serial_blocking(text, 33);
+  for(x=0; x<10; x++){
+    char text[11]={0};
+    sprintf(text, "addr: %d\n\r", addr[x]);
+    write_usb_serial_blocking(text, 11);
+  }
+}
+
+void stage_two(){
+  char buf[16] = "Hello World";
+
+  char addr = BASE_ADDR;
+  int x;
+  for(x=0; x<11; x++){
+    LCD_write(addr, buf[x]);
+    addr++;
+  }
 }
 
 void LCD_setup(){
@@ -29,31 +72,6 @@ void LCD_clear(){
     LCD_write(x, SPACE);
   }
 }
-
-int main(void){
-  serial_init();
-
-  //char test[20]={0};
-  //char space = " ";
-  //sprintf(test, "char value is %d\n\r", SPACE);
-  //write_usb_serial_blocking(test, 20);
-  setup_I2C(3,0,0,1);
-  LCD_setup();
-  LCD_clear();
-
-  char buf[16] = "Hello World";
-
-  char addr = BASE_ADDR;
-  int x;
-  for(x=0; x<11; x++){
-    LCD_write(addr, buf[x]);
-    addr++;
-  }
-  write_usb_serial_blocking("Success\n\r", 9);
-
-  return 0;
-}
-
 
 void setup_I2C(int func, int port, int pin0, int pin1){
   PINSEL_CFG_Type PinCfg;

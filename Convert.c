@@ -1,6 +1,7 @@
 #include "Convert.h"
 #include "serial.h"
 #include <stdio.h>
+
 char convert_char(char c){
     /*
     Converts individual characters to correct LCD value
