@@ -5,6 +5,7 @@
 #include "I2C.h"
 #include "Convert.h"
 
+/*
 int main(void){
   serial_init();
   setup_I2C(3,0,0,1);
@@ -14,11 +15,12 @@ int main(void){
   //stage_one();
   //wait();
   //stage_two();
-  stage_three();
+  //stage_three();
   write_usb_serial_blocking("Success\n\r", 9);
 
   return 0;
 }
+*/
 
 void stage_one(){
   int count=0;
@@ -89,13 +91,24 @@ void setup_I2C(int func, int port, int pin0, int pin1){
   I2C_Cmd(LPC_I2C1, ENABLE);
 }
 
-int transmit(char data[], uint8_t addr, int size){
+int transmit(char* data, uint8_t addr, int size){
   I2C_M_SETUP_Type transferMCfg;
   transferMCfg.sl_addr7bit = addr;
   transferMCfg.tx_data = data;
   transferMCfg.tx_length = size;
   transferMCfg.rx_data = NULL;
   transferMCfg.rx_length = 0;
+  transferMCfg.retransmissions_max = 3;
+  return I2C_MasterTransferData(LPC_I2C1, &transferMCfg, I2C_TRANSFER_POLLING);
+}
+
+int recieve(uint8_t addr, uint8_t *rx_data){
+  I2C_M_SETUP_Type transferMCfg;
+  transferMCfg.sl_addr7bit = addr;
+  transferMCfg.tx_data = NULL;
+  transferMCfg.tx_length = 0;
+  transferMCfg.rx_data = rx_data;
+  transferMCfg.rx_length = 1;
   transferMCfg.retransmissions_max = 3;
   return I2C_MasterTransferData(LPC_I2C1, &transferMCfg, I2C_TRANSFER_POLLING);
 }
