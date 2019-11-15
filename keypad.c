@@ -4,15 +4,17 @@
 #include "I2C.h"
 #include "serial.h"
 #include "keypad.h"
+#include "timer.h"
 
 char message[] = "i got here\n\r"; //12
-
+//write_usb_serial_blocking(message, 12);
 int main(){
   serial_init();
   setup_I2C(3,0,0,1);
   LCD_setup();
   LCD_clear();
   setup_keypad();
+  TIMER_EnableSysTick();
   poll();
   return 0;
 }
@@ -25,36 +27,106 @@ void setup_keypad(){
 }
 
 void poll(){
-  uint8_t result[4]={0};
+  char result[4];
+  char cols[4] = {0x7F, 0xBF, 0xDF, 0xEF};
+  char buf[64];
+  char last[4];
+  memset(buf,0,sizeof(buf));
   while(1) {
-    char cols[4] = {0x7F, 0xBF, 0xDF, 0xEF};
-    char buf[64];
-    memset(buf,0,sizeof(buf));
     int i;
     for(i=0; i<=4; i++){
       transmit(&cols[i], KEYPAD_ADDR, 1);
       recieve(KEYPAD_ADDR, &result[i]);
     }
-
-    for (i =0; i<4; i++) {
-      switch (result[i] & 0xf) {
-        case 0x7:
-        sprintf(buf, "row1: %x\n\r", result[i]);
-        write_usb_serial_blocking(buf, sizeof(buf));
-        break;
-        case 0xb:
-        sprintf(buf, "row2: %x\n\r", result[i]);
-        write_usb_serial_blocking(buf, sizeof(buf));
-        break;
-        case 0xd:
-        sprintf(buf, "row3: %x\n\r", result[i]);
-        write_usb_serial_blocking(buf, sizeof(buf));
-        break;
-        case 0xe:
-        sprintf(buf, "row4: %x\n\r", result[i]);
-        write_usb_serial_blocking(buf, sizeof(buf));
-        break;
+    for (i=0; i<4; i++) {
+      char *key = decode_keypad(result[i]);
+      if(*key != 0 && *key!=last[i]){
+        sprintf(buf, "%c\n\r", *key);
+        write_usb_serial_blocking(buf, 3);
       }
+      last[i] = *key;
     }
   }
+}
+
+
+char* decode_keypad(char key){
+  char *result;
+  switch (key & 0xF) {
+    case 0x7:
+      switch (key) {
+        case 0x77:
+          result = "1";
+        break;
+        case 0xB7:
+          result = "2";
+        break;
+        case 0xD7:
+          result = "3";
+        break;
+        case 0xE7:
+          result = "A";
+        break;
+        default:
+          result = 0;
+      }
+    break;
+    case 0xB:
+      switch (key) {
+        case 0x7B:
+          result = "4";
+        break;
+        case 0xBB:
+          result = "5";
+        break;
+        case 0xDB:
+          result = "6";
+        break;
+        case 0xEB:
+          result = "B";
+        break;
+        default:
+          result = 0;
+      }
+    break;
+    case 0xD:
+      switch (key) {
+        case 0x7D:
+          result = "7";
+        break;
+        case 0xBD:
+          result = "8";
+        break;
+        case 0xDD:
+          result = "9";
+        break;
+        case 0xED:
+          result = "C";
+        break;
+        default:
+          result = 0;
+      }
+    break;
+    case 0xE:
+      switch (key) {
+        case 0x7E:
+          result = "*";
+        break;
+        case 0xBE:
+          result = "0";
+        break;
+        case 0xDE:
+          result = "#";
+        break;
+        case 0xEE:
+          result = "D";
+        break;
+        default:
+          result = 0;
+      }
+    break;
+    default:
+      result = 0;
+  }
+  return result;
 }

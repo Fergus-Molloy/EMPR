@@ -102,7 +102,7 @@ int transmit(char* data, uint8_t addr, int size){
   return I2C_MasterTransferData(LPC_I2C1, &transferMCfg, I2C_TRANSFER_POLLING);
 }
 
-int recieve(uint8_t addr, uint8_t *rx_data){
+int recieve(uint8_t addr, char *rx_data){
   I2C_M_SETUP_Type transferMCfg;
   transferMCfg.sl_addr7bit = addr;
   transferMCfg.tx_data = NULL;

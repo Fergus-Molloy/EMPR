@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include "lpc17xx_gpio.h"
 #include "LEDS.h"
-#include "lpc17xx_systick.h"
 #include "serial.h"
+#include "timer.h"
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
   (byte & 0x08 ? '1' : '0'), \
@@ -20,9 +20,6 @@ int main(void){
 */
 void setup_LEDS(){
 	serial_init();
-	SYSTICK_InternalInit(100);
-	SYSTICK_IntCmd(ENABLE);
-	SYSTICK_Cmd(ENABLE);
 }
 
 void SetLED(uint32_t bitmask){
@@ -66,36 +63,4 @@ void finish(){
 	write_usb_serial_blocking("Finished\n\r", 11);
 	LEDOff(LED0|LED1|LED2|LED3);
 	while(1);
-}
-
-//Interrupts--------------------
-void SysTick_Handler(){
-	static int count=0;
-	static int x=0;
-	count++;
-
-	if(x == 15){
-		finish();
-	}
-
-	if(count==10){
-		uint32_t bitmask = GenerateBitMask(x);
-		x++;
-
-		char dec[20] = "0";
-		char hex[20] = "0";
-		char bin[20] = "0";
-
-		sprintf(dec, "dec: %d\n\r", x);
-		sprintf(hex, "hex: %x\n\r", x);
-		sprintf(bin, "bin: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(x));
-
-		write_usb_serial_blocking(dec, 11);
-		write_usb_serial_blocking(hex, 11);
-		write_usb_serial_blocking(bin, 13);
-
-		count = 0;
-		LEDOff(LED0|LED1|LED2|LED3);
-		SetLED(bitmask);
-	}
 }

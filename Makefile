@@ -49,7 +49,7 @@ LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 EXECNAME	= bin/keypad
 
 # Source files provided by the user to build the project
-OBJ		= Convert.o I2C.o keypad.o LEDS.o serial.o
+OBJ		= Convert.o I2C.o keypad.o LEDS.o serial.o timer.o
 
 # Commands handled by this makefile
 all: 	serial

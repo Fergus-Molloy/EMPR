@@ -10,6 +10,8 @@ void setup_keypad();
 
 void poll();
 
+char* decode_keypad(char key);
+
 /*
 bf
 df
