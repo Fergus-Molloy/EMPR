@@ -1,7 +1,8 @@
 #ifndef I2C_D
 #define I2C_D
-#define SERIAL_ADDR 59 //I2C address 59
-#define BASE_ADDR 0x80
+#define LCD_ADDR 59 //I2C address 59
+#define LN1_BASE_ADDR 0x80
+#define LN2_BASE_ADDR (LN1_BASE_ADDR+40)
 
 void setup_I2C(int func, int port, int pin0, int pin1);
 

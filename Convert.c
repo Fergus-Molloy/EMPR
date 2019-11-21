@@ -20,7 +20,7 @@ char convert_char(char c){
     }
     else{
         char text[43]={0};
-        sprintf(text, "ValueError: character %d not in alphabet\n\r", c);
+        sprintf(text, "ValueError: character %c not in alphabet\n\r", c);
         write_usb_serial_blocking(text, 43);
         return -1;
     }
@@ -36,7 +36,7 @@ char* convert_str(char string[]){
     //char buff[16] = {0};
     for(x=0; x<17; x++){
         if(string[x]==0)
-            break;
+        break;
         string[x] = convert_char(string[x]);
     }
     return string;
