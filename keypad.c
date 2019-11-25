@@ -50,7 +50,7 @@ void poll(){
         int i;
         for(i=0; i<=4; i++){
             transmit(&cols[i], KEYPAD_ADDR, 1);
-            recieve(KEYPAD_ADDR, &result[i]);
+            receive(KEYPAD_ADDR, &result[i]);
         }
         for (i=0; i<4; i++) {
             char *key = decode_keypad(result[i]);

@@ -20,6 +20,6 @@ void stage_three();
 
 int transmit(char data[], uint8_t addr, int size);
 
-int recieve(uint8_t addr, char *rx_data);
+int receive(uint8_t addr, char *rx_data);
 
 #endif
