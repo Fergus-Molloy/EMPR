@@ -46,10 +46,10 @@ LDFLAGS=$(CMSISFL) -static -mcpu=cortex-m3 -mthumb -mthumb-interwork \
 LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 
 # Name of the binary being built
-EXECNAME	= bin/ADC
+EXECNAME	= bin/DAC
 
 # Source files provided by the user to build the project
-OBJ		= ADC.o Convert.o I2C.o keypad.o LEDS.o serial.o timer.o
+OBJ		= ADC.o Convert.o DAC.o I2C.o keypad.o LEDS.o serial.o timer.o
 
 # Commands handled by this makefile
 all: 	serial
